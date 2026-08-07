@@ -1,0 +1,42 @@
+[admin@Branch1-Mkt] > exp
+# aug/07/2026 16:22:22 by RouterOS 7.8
+# software id = 
+#
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip ipsec profile
+set [ find default=yes ] hash-algorithm=sha256
+add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name="profile1 for hq" prf-algorithm=sha256
+/ip ipsec peer
+add address=100.0.0.9/32 comment="to HQ" exchange-mode=ike2 name=peer1 passive=yes profile="profile1 for hq" send-initial-contact=no
+/ip ipsec proposal
+set [ find default=yes ] auth-algorithms=sha256,sha1,md5 enc-algorithms=3des
+add auth-algorithms=sha256 enc-algorithms=aes-256-cbc,aes-256-gcm name="proposal1 to hq" pfs-group=modp2048
+/ip pool
+add name=dhcp_pool0 ranges=172.168.40.2-172.168.40.254
+/ip dhcp-server
+add address-pool=dhcp_pool0 interface=ether8 name=dhcp1
+/port
+set 0 name=serial0
+/ip address
+add address=200.0.0.2/30 interface=ether1 network=200.0.0.0
+add address=172.168.40.1/24 interface=ether8 network=172.168.40.0
+/ip dhcp-client
+add interface=ether1
+/ip dhcp-server network
+add address=172.168.40.0/24 gateway=172.168.40.1
+/ip firewall nat
+add action=accept chain=srcnat
+add action=masquerade chain=srcnat
+/ip ipsec identity
+add peer=peer1
+/ip ipsec policy
+add dst-address=172.168.16.0/24 level=unique peer=peer1 proposal="proposal1 to hq" src-address=172.168.40.0/24 tunnel=yes
+/ip route
+add disabled=no distance=1 dst-address=10.10.10.0/30 gateway=200.0.0.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+add disabled=no dst-address=172.168.0.0/16 gateway=200.0.0.1 routing-table=main suppress-hw-offload=no
+add disabled=no dst-address=0.0.0.0/0 gateway=200.0.0.1 routing-table=main suppress-hw-offload=no
+/system identity
+set name=Branch1-Mkt
+/tool romon
+set enabled=yes
