@@ -1,0 +1,115 @@
+[admin@HQ-MKT-R1] > exp
+# aug/07/2026 16:20:35 by RouterOS 7.8
+# software id = 
+#
+/interface bridge
+add name=bridge1
+/interface ipip
+add disabled=yes local-address=100.0.0.13 name="ipip-tunnel for b2" remote-address=100.0.0.14
+/interface gre
+add local-address=100.0.0.13 name=gre-tunnel1 remote-address=200.0.0.6
+/interface wireguard
+add listen-port=13231 mtu=1420 name=wireguard1
+/interface vlan
+add disabled=yes interface=ether1 name=vlan99-MGMT vlan-id=99
+/interface bonding
+add comment="Connected to Access Router" mode=balance-xor name=Bonding1 slaves=ether7,ether8 transmit-hash-policy=layer-2-and-3
+/interface lte apn
+set [ find default=yes ] ip-type=ipv4 use-network-apn=no
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip ipsec profile
+add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name="profile1 for br1" prf-algorithm=sha256
+/ip ipsec peer
+add address=200.0.0.2/32 comment="to BR1" exchange-mode=ike2 name=peer1 profile="profile1 for br1"
+/ip ipsec proposal
+add auth-algorithms=sha256 enc-algorithms=aes-256-cbc,aes-256-gcm name="proposal1 to br1" pfs-group=modp2048
+/ip pool
+add name=pool10 ranges=10.10.10.10-10.10.10.100
+add name=pool30 ranges=10.10.30.10-10.10.30.100
+add name=pool40 ranges=10.10.40.10-10.10.40.100
+add name=pool50 ranges=10.10.50.10-10.10.50.100
+add name=pool20 ranges=10.10.20.10-10.10.20.100
+add name=vpn ranges=172.168.200.100-172.168.200.200
+/port
+set 0 name=serial0
+/ppp profile
+add dns-server=8.8.8.8 local-address=172.168.200.1 name=profile1 remote-address=vpn
+/routing bgp template
+set default disabled=no output.network=bgp-networks
+add as=65511 disabled=no name=bgp-instanace output.network=bgp-networks router-id=11.11.11.11
+/routing ospf instance
+add disabled=no name=default-v2 originate-default=always router-id=11.11.11.11
+/routing ospf area
+add disabled=yes instance=default-v2 name=backbone-v2
+/ip settings
+set max-neighbor-entries=8192
+/ipv6 settings
+set disable-ipv6=yes max-neighbor-entries=8192
+/interface ovpn-server server
+set auth=sha1,md5
+/interface pppoe-server server
+add default-profile=profile1 disabled=no interface=ether1 one-session-per-host=yes service-name=service1
+/interface pptp-server server
+# PPTP connections are considered unsafe, it is suggested to use a more modern VPN protocol instead
+set default-profile=profile1 enabled=yes
+/interface wireguard peers
+add allowed-address=::/0 interface=wireguard1 public-key="tI8KxjZ7bho9YyhYtEqIVKM9c0cHE+3Mqx45d/OmpQs="
+/ip address
+add address=11.11.11.11 interface=bridge1 network=11.11.11.11
+add address=100.0.0.2/30 comment="to isp1" interface=ether2 network=100.0.0.0
+add address=100.0.0.6/30 comment="to isp2" interface=ether3 network=100.0.0.4
+add address=10.10.10.1/30 comment="to acces router" interface=Bonding1 network=10.10.10.0
+add address=100.0.0.9/30 comment="to br1" interface=ether5 network=100.0.0.8
+add address=172.168.200.1/24 disabled=yes interface=ether1 network=172.168.200.0
+add address=100.0.0.13/30 comment="to br2" interface=ether6 network=100.0.0.12
+add address=20.0.0.1/30 interface=gre-tunnel1 network=20.0.0.0
+/ip dhcp-client
+add default-route-distance=50 interface=*1 use-peer-dns=no use-peer-ntp=no
+/ip dhcp-server
+add address-pool=pool10 insert-queue-before=bottom interface=*5 name=server10
+add address-pool=pool20 interface=*6 name=server20-acc server-address=10.10.20.1
+add address-pool=pool30 interface=*7 name=server30-sales server-address=10.10.30.1
+add address-pool=pool40 interface=*9 name=server40-IT server-address=10.10.40.1
+add address-pool=pool50 interface=*A lease-time=1h40m name=server50-VOICE server-address=10.10.50.1
+/ip dhcp-server network
+add address=10.10.10.0/24 dns-server=1.1.1.1,8.8.8.8 gateway=10.10.10.1 netmask=24
+add address=10.10.20.0/24 dns-server=1.1.1.1,8.8.8.8 gateway=10.10.20.1 netmask=24
+add address=10.10.30.0/24 dns-server=1.1.1.1,8.8.8.8 gateway=10.10.30.1 netmask=24
+add address=10.10.40.0/24 dns-server=1.1.1.1,8.8.8.8 gateway=10.10.40.1 netmask=24
+add address=10.10.50.0/24 dns-server=1.1.1.1,8.8.8.8 gateway=10.10.50.1 netmask=24
+/ip firewall address-list
+add address=100.0.0.0/30 list=bgp-networks
+add address=100.0.0.4/30 list=bgp-networks
+/ip firewall filter
+add action=accept chain=forward disabled=yes protocol=tcp
+/ip firewall nat
+add action=accept chain=srcnat
+add action=masquerade chain=srcnat
+/ip ipsec identity
+add peer=peer1
+/ip ipsec policy
+set 0 disabled=yes
+add dst-address=172.168.40.0/24 level=unique peer=peer1 proposal="proposal1 to br1" src-address=172.168.16.0/24 tunnel=yes
+/ip route
+add disabled=yes distance=1 dst-address=172.168.0.0/16 gateway=100.0.0.10 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+add disabled=no distance=1 dst-address=200.0.0.0/30 gateway=100.0.0.10 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+add disabled=no dst-address=200.0.0.4/30 gateway=100.0.0.14 routing-table=main suppress-hw-offload=no
+/ppp secret
+add name=user1 profile=profile1 service=pptp
+add name=user1 profile=profile1 service=pppoe
+/routing bgp connection
+add as=65511 cisco-vpls-nlri-len-fmt=auto-bits connect=yes disabled=no input.filter=isp1-in listen=yes local.role=ibgp name=peer1-isp1 nexthop-choice=force-self \
+    output.filter-chain=isp1-out .network=bgp-networks remote.address=100.0.0.1/32 .as=65511 .port=179 router-id=11.11.11.11 routing-table=main templates=\
+    bgp-instanace
+add cisco-vpls-nlri-len-fmt=auto-bits connect=yes input.filter=isp2-in listen=yes local.role=ebgp name=peer2-isp2 nexthop-choice=force-self \
+    output.default-originate=always .filter-chain=isp2-out remote.address=100.0.0.5 .as=65533 .port=179 templates=bgp-instanace
+/routing filter rule
+add chain=isp2-in disabled=no rule="set bgp-weight 4; accept;"
+add chain=isp1-in disabled=no rule="set bgp-weight 2; accept;"
+add chain=isp2-out disabled=no rule="set bgp-weight 4; accept;"
+add chain=isp1-out disabled=no rule="set bgp-weight 2; accept;"
+/system identity
+set name=HQ-MKT-R1
+/tool romon
+set enabled=yes id=00:00:00:00:00:10
