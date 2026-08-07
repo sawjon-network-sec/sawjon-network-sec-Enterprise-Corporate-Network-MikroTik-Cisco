@@ -1,0 +1,68 @@
+[admin@HQ_MTK_2-Access] > exp
+# 2026-08-07 16:21:28 by RouterOS 7.16.2
+# software id = 
+#
+/interface bridge
+add disabled=yes name=bridge1
+/interface ethernet
+set [ find default-name=ether1 ] disabled=yes
+/interface bonding
+add comment="Connected to WAN-Core_Router" mode=balance-xor name=Bonding1 slaves=ether5,ether6 transmit-hash-policy=layer-2-and-3
+add comment="Connected to LAN-Core_SW" mode=802.3ad name=Bonding2 slaves=ether8,ether7 transmit-hash-policy=layer-2-and-3
+/interface vlan
+add interface=Bonding2 mtu=1492 name=vlan100-HR vlan-id=100
+add interface=Bonding2 mtu=1492 name=vlan101-Acc vlan-id=101
+add interface=Bonding2 mtu=1492 name=vlan102-Sale vlan-id=102
+add interface=Bonding2 mtu=1492 name=vlan103-IT vlan-id=103
+add interface=Bonding2 mtu=1492 name=vlan104-Guest vlan-id=104
+add interface=Bonding2 mtu=1492 name="vlan105-IP Phone" vlan-id=105
+add interface=Bonding2 mtu=1492 name=vlan106-Camera vlan-id=106
+add interface=Bonding2 mtu=1492 name=vlan107-AccessPoint vlan-id=107
+add interface=Bonding2 mtu=1492 name=vlan108-Printers vlan-id=108
+add interface=Bonding2 mtu=1492 name=vlan109-DMZ vlan-id=109
+add interface=Bonding2 mtu=1492 name=vlan110_Guest_User vlan-id=110
+/ip pool
+add name=pool1-hr ranges=172.168.16.10-172.168.16.100
+add name=pool2-Acc ranges=172.168.17.10-172.168.17.100
+add name=dhcp_pool4 ranges=172.168.18.10-172.168.18.100
+add name=dhcp_pool5 ranges=172.168.19.10-172.168.19.100
+add name=dhcp_pool6 ranges=172.168.20.10-172.168.20.100
+/port
+set 0 name=serial0
+/routing id
+add disabled=no id=44.44.44.44 name="Router ID" select-dynamic-id=any
+/ip address
+add address=172.168.16.1/24 interface=vlan100-HR network=172.168.16.0
+add address=172.168.17.1/24 interface=vlan101-Acc network=172.168.17.0
+add address=172.168.18.1/24 interface=vlan102-Sale network=172.168.18.0
+add address=172.168.19.1/24 interface=vlan103-IT network=172.168.19.0
+add address=172.168.20.1/24 interface=vlan104-Guest network=172.168.20.0
+add address=10.10.10.2/30 interface=Bonding1 network=10.10.10.0
+add address=44.44.44.44 interface=lo network=44.44.44.44
+add address=172.168.10.1/24 interface=ether3 network=172.168.10.0
+/ip dhcp-client
+# Interface not active
+add interface=ether1
+/ip dhcp-server
+add address-pool=pool1-hr interface=vlan100-HR name=server1-HR
+add address-pool=pool2-Acc interface=vlan101-Acc name=dhcp1-acc
+add address-pool=dhcp_pool4 interface=vlan102-Sale name=dhcp1-sales
+add address-pool=dhcp_pool5 interface=vlan103-IT name=dhcp-IT
+add address-pool=dhcp_pool6 interface=vlan104-Guest name=dhcp1-GUSET
+/ip dhcp-server network
+add address=172.168.16.0/24 gateway=172.168.16.1
+add address=172.168.17.0/24 gateway=172.168.17.1
+add address=172.168.18.0/24 gateway=172.168.18.1
+add address=172.168.19.0/24 gateway=172.168.19.1
+add address=172.168.20.0/24 gateway=172.168.20.1
+/ip firewall nat
+add action=masquerade chain=srcnat
+/ip route
+add disabled=no distance=10 dst-address=0.0.0.0/0 gateway=10.10.10.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+add disabled=no distance=2 dst-address=172.168.0.0/16 gateway=10.10.10.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/system identity
+set name=HQ_MTK_2-Access
+/system note
+set show-at-login=no
+/tool romon
+set enabled=yes
