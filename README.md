@@ -225,12 +225,6 @@ Network & Cloud Security Engineer
 
 ---
 
-# License
-
-This project is released under the MIT License.
-
----
-
 ## Acknowledgement
 
 This project was developed for educational purposes to strengthen hands-on experience with enterprise networking technologies and to demonstrate practical skills in routing, switching, VPN implementation, and enterprise network troubleshooting.
