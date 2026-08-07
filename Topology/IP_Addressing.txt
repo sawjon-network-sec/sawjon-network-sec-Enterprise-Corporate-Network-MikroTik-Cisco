@@ -1,0 +1,63 @@
+[admin@HQ-MKT-R1] > ip add pr
+Flags: X, D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS           NETWORK        INTERFACE  
+0   11.11.11.11/32    11.11.11.11    bridge1    
+;;; to isp1
+1   100.0.0.2/30      100.0.0.0      ether2     
+;;; to isp2
+2   100.0.0.6/30      100.0.0.4      ether3     
+;;; to acces router
+3   10.10.10.1/30     10.10.10.0     Bonding1   
+;;; to br1
+4   100.0.0.9/30      100.0.0.8      ether5     
+5 X 172.168.200.1/24  172.168.200.0  ether1     
+;;; to br2
+6   100.0.0.13/30     100.0.0.12     ether6     
+7   20.0.0.1/30       20.0.0.0       gre-tunnel1
+
+
+[admin@MTK_2-Access] > ip add pr
+Columns: ADDRESS, NETWORK, INTERFACE
+# ADDRESS          NETWORK       INTERFACE    
+0 172.168.16.1/24  172.168.16.0  vlan100-HR   
+1 172.168.17.1/24  172.168.17.0  vlan101-Acc  
+2 172.168.18.1/24  172.168.18.0  vlan102-Sale 
+3 172.168.19.1/24  172.168.19.0  vlan103-IT   
+4 172.168.20.1/24  172.168.20.0  vlan104-Guest
+5 10.10.10.2/30    10.10.10.0    Bonding1     
+6 44.44.44.44/32   44.44.44.44   lo           
+7 172.168.10.1/24  172.168.10.0  ether3  
+
+
+
+[admin@NTTN2] > ip add pr
+Flags: X - disabled, I - invalid, D - dynamic 
+ #   ADDRESS            NETWORK         INTERFACE                                                                                                                    
+ 0   100.0.0.14/30      100.0.0.12      ether1                                                                                                                       
+ 1   200.0.0.5/30       200.0.0.4       ether2  
+
+
+
+[admin@NTTN1] >   ip add pr
+Flags: X - disabled, I - invalid, D - dynamic 
+ #   ADDRESS            NETWORK         INTERFACE                                                                                                                    
+ 0   100.0.0.10/30      100.0.0.8       ether1                                                                                                                       
+ 1   200.0.0.1/30       200.0.0.0       ether2   
+
+
+
+
+[admin@Branch1-Mkt] > ip add pr
+Columns: ADDRESS, NETWORK, INTERFACE
+# ADDRESS          NETWORK       INTERFACE
+0 200.0.0.2/30     200.0.0.0     ether1   
+1 172.168.40.1/24  172.168.40.0  ether8   
+
+
+[admin@Branch2-MKT] > ip add pr
+Columns: ADDRESS, NETWORK, INTERFACE
+# ADDRESS          NETWORK       INTERFACE  
+0 200.0.0.6/30     200.0.0.4     ether1     
+1 172.168.30.1/24  172.168.30.0  ether2     
+2 20.0.0.2/30      20.0.0.0      gre-tunnel1
