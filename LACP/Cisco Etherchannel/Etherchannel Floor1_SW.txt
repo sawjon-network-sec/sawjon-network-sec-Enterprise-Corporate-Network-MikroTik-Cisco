@@ -1,0 +1,68 @@
+
+Switch_floor1#show running-config interface port-channel 1
+Building configuration...
+
+Current configuration : 169 bytes
+!
+interface Port-channel1
+ description Conect gi0/0-1 to Core_SW
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+end
+
+Switch_floor1#show running-config interface port-channel 2
+Building configuration...
+
+Current configuration : 171 bytes
+!
+interface Port-channel2
+ description Connet gi0/2-3 to Floor2_SW
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+end
+
+
+
+interface Port-channel1
+ description Conect gi0/0-1 to Core_SW
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel2
+ description Connet gi0/2-3 to Floor2_SW
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ description Connet Port-channel 1
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/1
+ description Connet Port-channel 1
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/2
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+ channel-group 2 mode active
+!
+interface GigabitEthernet0/3
+ switchport trunk allowed vlan 99-110
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+ channel-group 2 mode active
