@@ -1,0 +1,22 @@
+[admin@NTTN2] > expo
+# aug/07/2026 16:32:28 by RouterOS 6.49.7
+# software id = 
+#
+#
+#
+/interface ethernet
+set [ find default-name=ether3 ] name=ether1
+set [ find default-name=ether4 ] name=ether2
+set [ find default-name=ether1 ] name=ether3
+set [ find default-name=ether2 ] name=ether4
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip address
+add address=100.0.0.14/30 interface=ether1 network=100.0.0.12
+add address=200.0.0.5/30 interface=ether2 network=200.0.0.4
+/ip dhcp-client
+add disabled=no interface=ether1
+/system identity
+set name=NTTN2
+/tool romon
+set enabled=yes

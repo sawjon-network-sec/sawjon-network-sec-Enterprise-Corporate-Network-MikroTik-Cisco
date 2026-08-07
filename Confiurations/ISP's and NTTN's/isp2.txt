@@ -1,0 +1,32 @@
+[admin@ISP2] > exp
+# aug/07/2026 16:26:45 by RouterOS 6.49.7
+# software id = 
+#
+#
+#
+/interface bridge
+add name=bridge1
+/interface ethernet
+set [ find default-name=ether3 ] name=ether1
+set [ find default-name=ether4 ] name=ether2
+set [ find default-name=ether1 ] name=ether3
+set [ find default-name=ether2 ] name=ether4
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/routing bgp instance
+add as=65533 name=bgp1 router-id=33.33.33.33
+/ip address
+add address=33.33.33.33 interface=bridge1 network=33.33.33.33
+add address=100.0.0.5/30 interface=ether2 network=100.0.0.4
+/ip dhcp-client
+add disabled=no interface=ether1
+/ip firewall nat
+add action=masquerade chain=srcnat
+/routing bgp network
+add network=100.0.0.4/30
+/routing bgp peer
+add default-originate=always instance=bgp1 name="peer to HQ" nexthop-choice=force-self remote-address=100.0.0.6 remote-as=65511
+/system identity
+set name=ISP2
+/tool romon
+set enabled=yes
